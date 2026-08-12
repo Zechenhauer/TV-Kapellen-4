@@ -98,7 +98,7 @@
 
     @media (max-width: 850px) {
         .dashboard-grid {
-            grid-template-columns: 1fr; /* Auf Handys/Tablets untereinander */
+            grid-template-columns: 1fr;
         }
         .refresh-btn {
             position: static;
@@ -120,13 +120,11 @@
     .data-table th { background-color: #334155; color: #94a3b8; text-align: left; padding: 8px 4px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
     .data-table td { padding: 8px 4px; border-bottom: 1px solid #334155; font-size: 12px; }
 
-    /* Farblich gestaltete Spalten für die Scoring-Tabelle */
     .col-60 { color: #f97316 !important; background-color: rgba(249, 115, 22, 0.1); font-weight: bold; }
     .col-80 { color: #facc15 !important; background-color: rgba(250, 204, 21, 0.1); font-weight: bold; }
     .col-100 { color: #4ade80 !important; background-color: rgba(74, 222, 128, 0.1); font-weight: bold; }
     .col-140 { background-color: rgba(56, 189, 248, 0.1); font-weight: bold; }
 
-    /* Spezial-Badge für 140+ */
     .badge-140 {
         background-color: #0284c7;
         color: #ffffff;
@@ -177,12 +175,43 @@
         padding: 4px 14px; border-radius: 8px; border: 1px solid #334155;
     }
 
-    .block-title {
-        background: #334155; color: #f59e0b; padding: 6px 12px; font-size: 12px;
-        font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;
+    /* DEZENTE BADGES FÜR DIE BLOCK-TITEL */
+    .block-title-container {
+        background: #334155;
+        padding: 6px 12px;
+        border-bottom: 1px solid #1e293b;
+    }
+    .block-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 3px 10px;
+        border-radius: 6px;
     }
     
-    /* Match Row */
+    /* 1. Einzelblock = Dezent Dunkelblau */
+    .block-badge.block-1 {
+        background: #1e3a8a; color: #93c5fd; border: 1px solid #3b82f6;
+    }
+
+    /* Doppel-Block = Unauffälliges, schönes Dunkelrot */
+    .block-badge.block-doppel {
+        background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444;
+    }
+
+    /* 2. Einzelblock = Dezent Dunkelgrün */
+    .block-badge.block-2 {
+        background: #065f46; color: #a7f3d0; border: 1px solid #10b981;
+    }
+
+    /* Fallback */
+    .block-badge.block-default {
+        background: #0f172a; color: #f59e0b; border: 1px solid #f59e0b;
+    }
+    
+    /* Match Row Styling */
     .match-row {
         display: flex; align-items: center; justify-content: space-between;
         padding: 12px 15px; border-bottom: 1px solid #334155; cursor: pointer;
@@ -220,16 +249,13 @@
     .modal-table td { padding: 8px; border-bottom: 1px solid #334155; text-align: center; }
     .modal-table td.p-name { text-align: left; font-weight: bold; }
 
-    /* Styling für die Scoring-Tabelle im Pop-up */
     .scoring-header-row th {
         background-color: #991b1b !important;
         color: #ffffff !important;
         font-weight: bold;
         border: 1px solid #7f1d1d;
     }
-    .scoring-table-body td {
-        border: 1px solid #334155;
-    }
+    .scoring-table-body td { border: 1px solid #334155; }
 
     .row-faded { opacity: 0.2; }
     .row-matched { background-color: rgba(245, 158, 11, 0.15) !important; }
@@ -315,10 +341,8 @@
     </div>
 
     <script>
-    // 1. GOOGLE SHEETS URL
     const SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTdTOUA5sqMlTVxxUZWLn-ce3HNDvCbLfmLZIgT7EKJ0tYAT3OqZhx3T_BMvpgIwU5tDUxmjvUIRbHz/pub?gid=1132963048&single=true&output=csv";
 
-    // 2. KADER DER MANNSCHAFT
     const teamKader = [
         "Jesper Neutag", "Leon Overmann", "Brian Müller", 
         "Scott Jonen", "Lucas Mentzen", "Britta Roghmanns", 
@@ -327,7 +351,6 @@
 
     document.addEventListener("DOMContentLoaded", loadDataFromSheets);
 
-    // Funktion für den Aktualisieren-Button
     async function refreshData() {
         const btn = document.getElementById("refreshBtn");
         if (btn) {
@@ -339,7 +362,6 @@
         document.getElementById("loadingMessage").innerText = "Aktualisiere Daten aus Google Sheets...";
 
         try {
-            // Re-Fetch der CSV Daten mit Cache-Buster Timestamp
             const cacheBusterUrl = SHEETS_CSV_URL + "&_ts=" + new Date().getTime();
             const response = await fetch(cacheBusterUrl);
             const dataText = await response.text();
@@ -443,7 +465,6 @@
             const hunderteachtzigerRaw = row[11] || "";
             const hfString = row[12] || "";
 
-            // Scoring-Spalten
             const score60 = parseInt(row[13]) || 0;
             const score80 = parseInt(row[14]) || 0;
             const score100 = parseInt(row[15]) || 0;
@@ -669,7 +690,23 @@
 
             let matchCounter = 1;
             Object.keys(st.bloecke).forEach(blockTitle => {
-                cardHtml += `<div class="block-title">${blockTitle}</div>`;
+                let lowerTitle = blockTitle.toLowerCase();
+                let badgeClass = "block-default";
+
+                // Robuste und genaue Abfrage am Satzanfang
+                if (lowerTitle.startsWith("1.") || lowerTitle.startsWith("1 ") || lowerTitle.includes("erster")) {
+                    badgeClass = "block-1";
+                } else if (lowerTitle.includes("doppel")) {
+                    badgeClass = "block-doppel";
+                } else if (lowerTitle.startsWith("2.") || lowerTitle.startsWith("2 ") || lowerTitle.includes("zweiter")) {
+                    badgeClass = "block-2";
+                }
+
+                cardHtml += `
+                    <div class="block-title-container">
+                        <span class="block-badge ${badgeClass}">${blockTitle}</span>
+                    </div>
+                `;
 
                 st.bloecke[blockTitle].forEach(match => {
                     globalMatchStore[match.id] = match;
