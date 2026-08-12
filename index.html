@@ -20,10 +20,6 @@
         text-align: center;
         margin-bottom: 20px;
         position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
     }
     .app-main-header h1 {
         color: #f59e0b;
@@ -41,7 +37,6 @@
         margin-top: 4px;
         letter-spacing: 0.5px;
     }
-
     .app-main-header .app-sync-info {
         color: #64748b;
         font-size: 11px;
@@ -49,6 +44,20 @@
         margin-top: 6px;
         letter-spacing: 0.3px;
     }
+
+/* NEU: Ausrichtung der Logos links & rechts neben dem H1-Titel */
+.header-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 4px;
+}
+.header-logo {
+    height: 45px;
+    width: auto;
+    object-fit: contain;
+}
 
     /* Refresh-Button Styling */
     .refresh-btn {
@@ -264,8 +273,9 @@
         <!-- Hauptüberschrift mit Aktualisieren-Button & Logo -->
         <div class="app-main-header">
             <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄 Daten aktualisieren</button>
-            <img src="https://lh3.googleusercontent.com/d/1PB4X2QrrMlaRlajQEWDtJxRP2c6VTsI5" alt="TV Kapellen Logo" style="height: 45px; width: auto; object-fit: contain;">
+            <img src="https://lh3.googleusercontent.com/d/1PB4X2QrrMlaRlajQEWDtJxRP2c6VTsI5" alt="TV Kapellen Logo" class="header-logo">
             <h1>TV Kapellen 1919 e.V. 4</h1>
+            <img src="https://lh3.googleusercontent.com/d/1PB4X2QrrMlaRlajQEWDtJxRP2c6VTsI5" alt="TV Kapellen Logo" class="header-logo">
             <div class="app-subtitle">Saisonübersicht & Spieler-Statistiken</div>
             <div class="app-sync-info">⚡ Datenpflege & Bereitstellung: Jürgen Schützendorf</div>
         </div>
