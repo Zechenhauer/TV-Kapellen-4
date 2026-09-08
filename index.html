@@ -196,6 +196,28 @@
         padding: 4px 14px; border-radius: 8px; border: 1px solid #334155;
     }
 
+    /* Mannschaftsfoto Sektion unten auf der Karte */
+    .matchday-photo-section {
+        background: #111827;
+        padding: 15px;
+        text-align: center;
+        border-top: 1px solid #334155;
+    }
+    .photo-preview-container {
+        display: inline-block;
+        max-width: 100%;
+        margin-top: 4px;
+    }
+    .photo-preview {
+        max-width: 100%;
+        max-height: 280px;
+        border-radius: 8px;
+        border: 2px solid #f59e0b;
+        object-fit: cover;
+        display: block;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
     .block-title-container {
         background: #334155;
         padding: 6px 12px;
@@ -485,7 +507,6 @@
 
             if (!spieltagNum) return;
 
-            // --- DOPPEL-ERKENNUNG DIREKT AM ANFANG ---
             let isDoppelMatch = blockName.toLowerCase().includes("doppel") || spielerKapellen.includes("/");
 
             if (!spieltageMap[spieltagNum]) {
@@ -540,18 +561,15 @@
 
             st.bloecke[blockName].push(matchObj);
 
-            // Beteiligte Spieler registrieren
             let beteiligteSpieler = spielerKapellen.split("/").map(s => s.trim()).filter(s => s !== "");
             beteiligteSpieler.forEach(subP => {
                 if(subP) st.alleSpieler.add(subP.toLowerCase());
             });
 
-            // WICHTIG: Wenn es ein Doppel ist, hier komplett abbrechen (keine Einzel-Statistiken)
             if (isDoppelMatch) {
                 return;
             }
 
-            // --- AB HIER NUR REINE EINZEL-BERECHNUNG ---
             let isWin = false;
             let isLoss = false;
             if (ergebnisSpiel && ergebnisSpiel.includes(":")) {
@@ -769,6 +787,17 @@
                     `;
                 });
             });
+
+            // Festes Mannschaftsfoto für Spieltag 1
+            if (st.nummer == "1") {
+                cardHtml += `
+                    <div class="matchday-photo-section">
+                        <div class="photo-preview-container">
+                            <img src="https://lh3.googleusercontent.com/d/16Wa6fSJSeU99BOZnP9y9Zqnu2dFdUplw" class="photo-preview" alt="Mannschaftsfoto Spieltag 1">
+                        </div>
+                    </div>
+                `;
+            }
 
             cardHtml += `</div>`;
             container.innerHTML += cardHtml;
