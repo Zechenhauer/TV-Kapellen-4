@@ -21,6 +21,29 @@
         margin-bottom: 20px;
         position: relative;
     }
+
+    .header-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 4px;
+        width: 100%;
+    }
+
+    .header-logo {
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        object-fit: contain;
+        border: 2px solid #f59e0b;
+        background: #0f172a;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        padding: 4px;
+        box-sizing: border-box;
+        flex-shrink: 0;
+    }
+
     .app-main-header h1 {
         color: #f59e0b;
         font-size: 26px;
@@ -43,28 +66,6 @@
         font-weight: 500;
         margin-top: 6px;
         letter-spacing: 0.3px;
-    }
-
-    /* Ausrichtung der Logos links & rechts neben dem H1-Titel */
-    .header-title-row {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 15px;
-        margin-bottom: 4px;
-    }
-    /* Erzwingt runde Form mit orangenem Rahmen für die Wappen/Logos */
-    .header-logo {
-        width: 55px;
-        height: 55px;
-        border-radius: 50%;
-        object-fit: contain;
-        border: 2px solid #f59e0b;
-        background: #0f172a;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        padding: 4px;
-        box-sizing: border-box;
-        flex-shrink: 0;
     }
 
     /* Refresh-Button Styling */
@@ -196,7 +197,7 @@
         padding: 4px 14px; border-radius: 8px; border: 1px solid #334155;
     }
 
-    /* Mannschaftsfoto Sektion unten auf der Karte */
+    /* Mannschaftsfoto Sektion unter dem letzten Spiel */
     .matchday-photo-section {
         background: #111827;
         padding: 15px;
@@ -204,6 +205,7 @@
         border-top: 1px solid #334155;
     }
     .photo-preview-container {
+        position: relative;
         display: inline-block;
         max-width: 100%;
         margin-top: 4px;
@@ -216,6 +218,24 @@
         object-fit: cover;
         display: block;
         box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .photo-upload-btn {
+        background: #334155;
+        color: #f8fafc;
+        border: 1px dashed #f59e0b;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 0.2s;
+    }
+    .photo-upload-btn:hover {
+        background: #f59e0b;
+        color: #0f172a;
     }
 
     .block-title-container {
@@ -246,10 +266,23 @@
     .match-row:hover { background-color: #334155; }
     .match-num { width: 25px; color: #64748b; font-size: 12px; font-weight: bold; }
     .match-players { flex: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; font-size: 14px; }
+    
     .player-side { width: 42%; font-weight: 500; }
     .player-side.left { text-align: right; }
     .player-side.right { text-align: left; }
-    .player-side.winner { color: #34d399; font-weight: bold; }
+    
+    /* Nur der Name bekommt das Kästchen */
+    .winner-name { 
+        color: #4ade80; 
+        font-weight: bold; 
+        background-color: rgba(22, 101, 52, 0.25);
+        border: 1px solid #22c55e;
+        padding: 2px 8px;
+        border-radius: 6px;
+        box-shadow: 0 0 8px rgba(34, 197, 94, 0.25);
+        display: inline-block;
+    }
+
     .avg-tag { color: #94a3b8; font-size: 12px; font-weight: normal; margin: 0 4px; }
     .score-tag { background: #0f172a; color: #f59e0b; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-family: monospace; font-size: 14px; border: 1px solid #334155; min-width: 45px; text-align: center; }
     .stats-icon { color: #34d399; font-size: 14px; margin-left: 10px; }
@@ -302,10 +335,17 @@
             <div class="app-subtitle">Saisonübersicht & Spieler-Statistiken</div>
             <div class="app-sync-info">⚡ Datenpflege & Bereitstellung: Jürgen Schützendorf</div>
         </div>
+        
+        <!-- Zurück Button -->
+        <div class="back-nav">
+            <a href="https://zechenhauer.github.io/TVK-4-Saison-26-27/" class="back-btn">
+                <span>🔙</span> Zurück zur Hauptapp
+            </a>
+        </div>
 
         <!-- Live Suche -->
         <div class="search-wrapper">
-            <input type="text" id="playerSearchInput" class="search-box-input" placeholder="🔍 Nach Spieler-Name suchen..." oninput="performLiveSearch()">
+            <input type="text" id="playerSearchInput" class="search-box-input" placeholder="🔍 Nach Spieler-Name suchen (z.B. Neutag)..." oninput="performLiveSearch()">
         </div>
 
         <div id="loadingMessage" style="text-align:center; color:#f59e0b; margin: 20px 0;">Lade Daten aus Google Sheets...</div>
@@ -567,7 +607,7 @@
             });
 
             if (isDoppelMatch) {
-                return;
+                return; 
             }
 
             let isWin = false;
@@ -768,18 +808,27 @@
                         else if (parseInt(parts[1]) > parseInt(parts[0])) rightWins = true;
                     }
 
+                    let leftHtml = match.spieler;
+                    let rightHtml = match.gegner;
+
+                    if (leftWins) {
+                        leftHtml = `<span class="winner-name">${match.spieler}</span>`;
+                    } else if (rightWins) {
+                        rightHtml = `<span class="winner-name">${match.gegner}</span>`;
+                    }
+
                     let searchRowPlayers = match.spieler.split("/").map(s => s.trim().toLowerCase()).join("||");
 
                     cardHtml += `
                         <div class="match-row" data-row-players="${searchRowPlayers}" onclick="openModal(${match.id})">
                             <div class="match-num">${matchCounter++}</div>
                             <div class="match-players">
-                                <div class="player-side left ${leftWins ? 'winner' : ''}">
-                                    ${match.spieler} <span class="avg-tag">(${match.avg || '—'})</span>
+                                <div class="player-side left">
+                                    ${leftHtml} <span class="avg-tag">(${match.avg || '—'})</span>
                                 </div>
                                 <div class="score-tag">${match.ergebnis}</div>
-                                <div class="player-side right ${rightWins ? 'winner' : ''}">
-                                    ${match.gegner}
+                                <div class="player-side right">
+                                    ${rightHtml}
                                 </div>
                             </div>
                             <div class="stats-icon">📊</div>
@@ -788,20 +837,51 @@
                 });
             });
 
-            // Festes Mannschaftsfoto für Spieltag 1
-            if (st.nummer == "1") {
-                cardHtml += `
-                    <div class="matchday-photo-section">
-                        <div class="photo-preview-container">
-                            <img src="https://lh3.googleusercontent.com/d/16Wa6fSJSeU99BOZnP9y9Zqnu2dFdUplw" class="photo-preview" alt="Mannschaftsfoto Spieltag 1">
-                        </div>
-                    </div>
-                `;
+            // Gespeichertes Foto aus LocalStorage abrufen oder Standard für Spieltag 1
+            let savedPhoto = localStorage.getItem(`tvk_4_spieltag_photo_${st.nummer}`);
+            if (!savedPhoto && st.nummer == "1") {
+                savedPhoto = "https://lh3.googleusercontent.com/d/16Wa6fSJSeU99BOZnP9y9Zqnu2dFdUplw";
             }
 
-            cardHtml += `</div>`;
+            // Mannschaftsfoto Sektion unter dem letzten Spiel
+            cardHtml += `
+                <div class="matchday-photo-section" id="photo-section-${st.nummer}">
+                    <div id="photo-container-${st.nummer}">
+                        ${savedPhoto ? `
+                            <div class="photo-preview-container">
+                                <img src="${savedPhoto}" class="photo-preview" alt="Mannschaftsfoto Spieltag ${st.nummer}">
+                            </div>
+                        ` : `
+                            <label class="photo-upload-btn">
+                                📷 Mannschaftsfoto für Spieltag ${st.nummer} hinzufügen
+                                <input type="file" accept="image/*" style="display:none;" onchange="handlePhotoUpload(event, '${st.nummer}')">
+                            </label>
+                        `}
+                    </div>
+                </div>
+            </div>`;
+            
             container.innerHTML += cardHtml;
         });
+    }
+
+    // Foto hochladen und im LocalStorage speichern
+    function handlePhotoUpload(event, spieltagNum) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Image = e.target.result;
+            localStorage.setItem(`tvk_4_spieltag_photo_${spieltagNum}`, base64Image);
+            
+            document.getElementById(`photo-container-${spieltagNum}`).innerHTML = `
+                <div class="photo-preview-container">
+                    <img src="${base64Image}" class="photo-preview" alt="Mannschaftsfoto Spieltag ${spieltagNum}">
+                </div>
+            `;
+        };
+        reader.readAsDataURL(file);
     }
 
     function openModal(matchId) {
